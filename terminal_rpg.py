@@ -10,10 +10,12 @@ sys.stdout.write('\0337')
 sys.stdout.write('\033[?25l')
 sys.stdout.flush()
 
+resources = ['stone', 'wood', 'steel', 'iron', 'diamond', 'gold']
+
 player = {'row':0,
             'col':0,
             'look':'right',
-            'inventory':['axe', 'sword', 'hammer', 'empty', 'empty', 'empty','empty', 'empty', 'empty'],
+            'inventory':['axe', 'hammer', 'empty', 'empty', 'empty','empty', 'empty', 'empty'],
             'stone': 0,
             'wood': 0,
             'iron': 0,
@@ -26,7 +28,7 @@ def display(board):
     board[player['row']][player['col']] = '#'
     for b in board:
         print(''.join(b))
-    current_resources = [f'{item}: {player[item]}' if item in ['stone', 'wood', 'steel', 'iron', 'diamond', 'gold'] else item for item in player['inventory']]
+    current_resources = [f'{item}: {player[item]}' if item in resources else item for item in player['inventory']]
     print('\n'+player['look'])
     print("\nInventory\n")
     print(' | '.join(current_resources))
@@ -48,7 +50,7 @@ def init_board():
     
 def action(board):
     if player['look'] == 'up' and player['row'] != 0:
-        if player['equipped'] == 'axe' and board[player['row']-1][player['col']] == 'T':
+        if player['equipped'] == 'axe' and board[player['row']-1][player['col']] in ['T', '=']:
             board[player['row']-1][player['col']] = '.'
             player['wood'] += 1
             if 'wood' not in player['inventory']:
@@ -63,8 +65,15 @@ def action(board):
             player['stone'] -= 1
             if player['stone'] == 0:
                 player['inventory'][player['inventory'].index('stone')] = 'empty'
+                player['equipped'] = 'empty'
+        elif player['equipped'] == 'wood' and board[player['row']-1][player['col']] == '.' and player['wood'] > 0:
+            board[player['row']-1][player['col']] = '='
+            player['wood'] -= 1
+            if player['wood'] == 0:
+                player['inventory'][player['inventory'].index('wood')] = 'empty'
+                player['equipped'] = 'empty'
     elif player['look'] == 'down' and player['row'] != 9:
-        if player['equipped'] == 'axe' and board[player['row']+1][player['col']] == 'T':
+        if player['equipped'] == 'axe' and board[player['row']+1][player['col']] in ['T', '=']:
             board[player['row']+1][player['col']] = '.'
             player['wood'] += 1
             if 'wood' not in player['inventory']:
@@ -79,8 +88,15 @@ def action(board):
             player['stone'] -= 1
             if player['stone'] == 0:
                 player['inventory'][player['inventory'].index('stone')] = 'empty'
+                player['equipped'] = 'empty'
+        elif player['equipped'] == 'wood' and board[player['row']+1][player['col']] == '.' and player['wood'] > 0:
+            board[player['row']+1][player['col']] = '='
+            player['wood'] -= 1
+            if player['wood'] == 0:
+                player['inventory'][player['inventory'].index('wood')] = 'empty'
+                player['equipped'] = 'empty'
     elif player['look'] == 'right' and player['col'] != 19:
-        if player['equipped'] == 'axe' and board[player['row']][player['col']+1] == 'T':
+        if player['equipped'] == 'axe' and board[player['row']][player['col']+1] in ['T', '=']:
             board[player['row']][player['col']+1] = '.'
             player['wood'] += 1
             if 'wood' not in player['inventory']:
@@ -95,8 +111,15 @@ def action(board):
             player['stone'] -= 1
             if player['stone'] == 0:
                 player['inventory'][player['inventory'].index('stone')] = 'empty'
+                player['equipped'] = 'empty'
+        elif player['equipped'] == 'wood' and board[player['row']][player['col']+1] == '.' and player['wood'] > 0:
+            board[player['row']][player['col']+1] = '='
+            player['wood'] -= 1
+            if player['wood'] == 0:
+                player['inventory'][player['inventory'].index('wood')] = 'empty'
+                player['equipped'] = 'empty'
     elif player['look'] == 'left' and player['col'] != 0:
-        if player['equipped'] == 'axe' and board[player['row']][player['col']-1] == 'T':
+        if player['equipped'] == 'axe' and board[player['row']][player['col']-1] in ['T', '=']:
             board[player['row']][player['col']-1] = '.'
             player['wood'] += 1
             if 'wood' not in player['inventory']:
@@ -111,12 +134,21 @@ def action(board):
             player['stone'] -= 1
             if player['stone'] == 0:
                 player['inventory'][player['inventory'].index('stone')] = 'empty'
+                player['equipped'] = 'empty'
+        elif player['equipped'] == 'wood' and board[player['row']][player['col']-1] == '.' and player['wood'] > 0:
+            board[player['row']][player['col']-1] = '='
+            player['wood'] -= 1
+            if player['wood'] == 0:
+                player['inventory'][player['inventory'].index('wood')] = 'empty'
+                player['equipped'] = 'empty'
     
     return board
         
 def start():
     board = init_board()
     display(board)
+    
+    tiles = ['T', '*', '=']
     
     while True:
         if msvcrt.kbhit():
@@ -139,19 +171,19 @@ def start():
 
             elif ch == b'w' and player['row']-1 >= 0:
                 player['look'] = 'up'
-                if board[player['row']-1][player['col']] != 'T' and board[player['row']-1][player['col']] != '*':
+                if board[player['row']-1][player['col']] not in tiles:
                     player['row'] -= 1
             elif ch == b'a' and player['col']-1 >= 0:
                 player['look'] = 'left'
-                if board[player['row']][player['col']-1] != 'T' and board[player['row']][player['col']-1] != '*':
+                if board[player['row']][player['col']-1] not in tiles:
                     player['col'] -= 1
             elif ch == b's' and player['row']+1 <= 9:
                 player['look'] = 'down'
-                if board[player['row']+1][player['col']] != 'T' and board[player['row']+1][player['col']] != '*':
+                if board[player['row']+1][player['col']] not in tiles:
                     player['row'] += 1
             elif ch == b'd' and player['col']+1 <= 19:
                 player['look'] = 'right'
-                if board[player['row']][player['col']+1] != 'T' and board[player['row']][player['col']+1] != '*':
+                if board[player['row']][player['col']+1] not in tiles:
                     player['col'] += 1   
             elif ch == b'\r': board = action(board)
             elif ch == b'1': player['equipped'] = player['inventory'][0]
