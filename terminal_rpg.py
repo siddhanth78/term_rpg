@@ -13,16 +13,23 @@ sys.stdout.flush()
 player = {'row':0,
             'col':0,
             'look':'right',
-            'inventory':['axe', 'sword', 'hammer', 'empty', 'empty', 'empty'],
+            'inventory':['axe', 'sword', 'hammer', 'empty', 'empty', 'empty','empty', 'empty', 'empty'],
+            'stone': 0,
+            'wood': 0,
+            'iron': 0,
+            'steel': 0,
+            'gold': 0,
+            'diamond': 0,
             'equipped':'axe'}
 
 def display(board):
     board[player['row']][player['col']] = '#'
     for b in board:
         print(''.join(b))
+    current_resources = [f'{item}: {player[item]}' if item in ['stone', 'wood', 'steel', 'iron', 'diamond', 'gold'] else item for item in player['inventory']]
     print('\n'+player['look'])
     print("\nInventory\n")
-    print(' | '.join(player['inventory']))
+    print(' | '.join(current_resources))
     print('\nEquipped: '+player['equipped'])
         
 def init_board():
@@ -43,37 +50,45 @@ def action(board):
     if player['look'] == 'up' and player['row'] != 0:
         if player['equipped'] == 'axe' and board[player['row']-1][player['col']] == 'T':
             board[player['row']-1][player['col']] = '.'
+            player['wood'] += 1
             if 'wood' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'wood'
         elif player['equipped'] == 'hammer' and board[player['row']-1][player['col']] == '*':
             board[player['row']-1][player['col']] = '.'
+            player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
     elif player['look'] == 'down' and player['row'] != 9:
         if player['equipped'] == 'axe' and board[player['row']+1][player['col']] == 'T':
             board[player['row']+1][player['col']] = '.'
+            player['wood'] += 1
             if 'wood' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'wood'
         elif player['equipped'] == 'hammer' and board[player['row']+1][player['col']] == '*':
             board[player['row']+1][player['col']] = '.'
+            player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
     elif player['look'] == 'right' and player['col'] != 19:
         if player['equipped'] == 'axe' and board[player['row']][player['col']+1] == 'T':
             board[player['row']][player['col']+1] = '.'
+            player['wood'] += 1
             if 'wood' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'wood'
         elif player['equipped'] == 'hammer' and board[player['row']][player['col']+1] == '*':
             board[player['row']][player['col']+1] = '.'
+            player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
     elif player['look'] == 'left' and player['col'] != 0:
         if player['equipped'] == 'axe' and board[player['row']][player['col']-1] == 'T':
             board[player['row']][player['col']-1] = '.'
+            player['wood'] += 1
             if 'wood' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'wood'
         elif player['equipped'] == 'hammer' and board[player['row']][player['col']-1] == '*':
             board[player['row']][player['col']-1] = '.'
+            player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
     
@@ -114,6 +129,9 @@ def start():
             elif ch == b'4': player['equipped'] = player['inventory'][3]
             elif ch == b'5': player['equipped'] = player['inventory'][4]
             elif ch == b'6': player['equipped'] = player['inventory'][5]
+            elif ch == b'7': player['equipped'] = player['inventory'][6]
+            elif ch == b'8': player['equipped'] = player['inventory'][7]
+            elif ch == b'9': player['equipped'] = player['inventory'][8]
             
             display(board)
     
