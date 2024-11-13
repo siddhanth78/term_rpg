@@ -14,14 +14,14 @@ player = {'row':0,
             'col':0,
             'look':'right',
             'inventory':['axe', 'sword', 'rock', 'empty', 'empty', 'empty'],
-            'equipped':'rock'}
+            'equipped':'axe'}
 
 def display(board):
     board[player['row']][player['col']] = '#'
     for b in board:
         print(''.join(b))
     print('\n'+player['look'])
-    print("Inventory\n")
+    print("\nInventory\n")
     for i in player['inventory']:
         if i == 'empty':
             print('[   ]')
@@ -42,7 +42,7 @@ def init_board():
             ['.']*20,['.']*20,['.']*20,['.']*20,['.']*20,]
             
     for b in board:
-        for i in range(len(b)):
+        for i in range(1,len(b)):
             prob = random.random()
             if prob <= 0.1:
                 b[i] = 'T'
@@ -88,10 +88,14 @@ def main():
                 elif ch == b'M':
                     player['look'] = "right"
             else:
-                if ch == b'w': player['row'] -= 1
-                elif ch == b'a': player['col'] -= 1
-                elif ch == b's': player['row'] += 1
-                elif ch == b'd': player['col'] += 1
+                if ch == b'w' and player['row']-1 >= 0:
+                    if board[player['row']-1][player['col']] != 'T': player['row'] -= 1
+                elif ch == b'a' and player['col']-1 >= 0:
+                    if board[player['row']][player['col']-1] != 'T': player['col'] -= 1
+                elif ch == b's' and player['row']+1 <= 9:
+                    if board[player['row']+1][player['col']] != 'T': player['row'] += 1
+                elif ch == b'd' and player['col']+1 <= 19:
+                    if board[player['row']][player['col']+1] != 'T': player['col'] += 1
                 elif ch == b'\r': board = action(board)
                 elif ch == b'1': player['equipped'] = player['inventory'][0]
                 elif ch == b'2': player['equipped'] = player['inventory'][1]
@@ -99,12 +103,6 @@ def main():
                 elif ch == b'4': player['equipped'] = player['inventory'][3]
                 elif ch == b'5': player['equipped'] = player['inventory'][4]
                 elif ch == b'6': player['equipped'] = player['inventory'][5]
-            
-                if player['row'] < 0: player['row'] = 0
-                elif player['row'] > 9: player['row'] = 9
-                
-                if player['col'] < 0: player['col'] = 0
-                elif player['col'] > 19: player['col'] = 19
             
             display(board)
     
