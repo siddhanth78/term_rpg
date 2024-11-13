@@ -58,6 +58,11 @@ def action(board):
             player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
+        elif player['equipped'] == 'stone' and board[player['row']-1][player['col']] == '.' and player['stone'] > 0:
+            board[player['row']-1][player['col']] = '*'
+            player['stone'] -= 1
+            if player['stone'] == 0:
+                player['inventory'][player['inventory'].index('stone')] = 'empty'
     elif player['look'] == 'down' and player['row'] != 9:
         if player['equipped'] == 'axe' and board[player['row']+1][player['col']] == 'T':
             board[player['row']+1][player['col']] = '.'
@@ -69,6 +74,11 @@ def action(board):
             player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
+        elif player['equipped'] == 'stone' and board[player['row']+1][player['col']] == '.' and player['stone'] > 0:
+            board[player['row']+1][player['col']] = '*'
+            player['stone'] -= 1
+            if player['stone'] == 0:
+                player['inventory'][player['inventory'].index('stone')] = 'empty'
     elif player['look'] == 'right' and player['col'] != 19:
         if player['equipped'] == 'axe' and board[player['row']][player['col']+1] == 'T':
             board[player['row']][player['col']+1] = '.'
@@ -80,6 +90,11 @@ def action(board):
             player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
+        elif player['equipped'] == 'stone' and board[player['row']][player['col']+1] == '.' and player['stone'] > 0:
+            board[player['row']][player['col']+1] = '*'
+            player['stone'] -= 1
+            if player['stone'] == 0:
+                player['inventory'][player['inventory'].index('stone')] = 'empty'
     elif player['look'] == 'left' and player['col'] != 0:
         if player['equipped'] == 'axe' and board[player['row']][player['col']-1] == 'T':
             board[player['row']][player['col']-1] = '.'
@@ -91,6 +106,11 @@ def action(board):
             player['stone'] += 1
             if 'stone' not in player['inventory']:
                 player['inventory'][player['inventory'].index('empty')] = 'stone'
+        elif player['equipped'] == 'stone' and board[player['row']][player['col']-1] == '.' and player['stone'] > 0:
+            board[player['row']][player['col']-1] = '*'
+            player['stone'] -= 1
+            if player['stone'] == 0:
+                player['inventory'][player['inventory'].index('stone')] = 'empty'
     
     return board
         
