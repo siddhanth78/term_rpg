@@ -125,8 +125,19 @@ def start():
             
             ch = msvcrt.getch()
             board[player['row']][player['col']] = '.'
+            
+            if ch == b'\xe0':
+                ch = msvcrt.getch()
+                if ch == b'H':
+                    player['look'] = 'up'
+                elif ch == b'P':
+                    player['look'] = "down"
+                elif ch == b'K':
+                    player['look'] = "left"
+                elif ch == b'M':
+                    player['look'] = "right"
 
-            if ch == b'w' and player['row']-1 >= 0:
+            elif ch == b'w' and player['row']-1 >= 0:
                 player['look'] = 'up'
                 if board[player['row']-1][player['col']] != 'T' and board[player['row']-1][player['col']] != '*':
                     player['row'] -= 1
