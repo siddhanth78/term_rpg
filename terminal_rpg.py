@@ -154,7 +154,7 @@ def start():
     board = init_board()
     display(board)
     
-    tiles = ['T', '*', '=']
+    tiles = ['T', '*', '=', '@', '+', '^', '|']
     
     while True:
         if msvcrt.kbhit():
