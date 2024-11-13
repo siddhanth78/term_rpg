@@ -43,8 +43,14 @@ def init_board():
             prob = random.random()
             if prob <= 0.1:
                 b[i] = 'T'
-            elif 0.1 <= prob <= 0.15:
+            elif 0.1 < prob <= 0.15:
                 b[i] = "*"
+            elif 0.15 < prob <= 0.1795:
+                b[i] = "+"
+            elif 0.1795 < prob <= 0.1825:
+                b[i] = "@"
+            elif 0.1825 < prob <= 0.18275:
+                b[i] = "^"
                 
     return board
     
