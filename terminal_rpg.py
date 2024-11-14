@@ -33,6 +33,7 @@ player = {
         "empty",
         "empty",
         "empty",
+        "empty",
     ],
     "stone": 0,
     "wood": 0,
@@ -40,6 +41,8 @@ player = {
     "steel": 0,
     "gold": 0,
     "diamond": 0,
+    "axe": 1,
+    "hammer": 1,
     "equipped": "axe",
 }
 
@@ -49,13 +52,14 @@ def display(board):
     for b in board:
         print("".join(b))
     current_resources = [
-        f"{item}: {player[item]}" if item in resources else item
-        for item in player["inventory"]
+        f"{item}: {player[item]}"
+        for item in player["inventory"] if item != "empty"
     ]
     print("\n" + player["look"])
-    print("\nInventory\n")
+    print("Max inventory slots: 9")
+    print("Inventory")
     print(" | ".join(current_resources))
-    print("\nEquipped: " + player["equipped"])
+    print("Equipped: " + player["equipped"])
 
 
 def init_board():
@@ -83,7 +87,7 @@ def init_board():
                 b[i] = "+"
             elif 0.065 < prob <= 0.0665:
                 b[i] = "@"
-            elif 0.0675 < prob <= 0.0677:
+            elif 0.0675 < prob <= 0.06775:
                 b[i] = "^"
 
     return board
@@ -91,7 +95,7 @@ def init_board():
 
 def action(board):
     if player["look"] == "up" and player["row"] != 0:
-        if player["equipped"] == "axe" and board[player["row"] - 1][player["col"]] in [
+        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"] - 1][player["col"]] in [
             "T",
             "=",
         ]:
@@ -100,7 +104,7 @@ def action(board):
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer"
+            player["equipped"] == "hammer" and player['hammer'] >= 1
             and board[player["row"] - 1][player["col"]] == "*"
         ):
             board[player["row"] - 1][player["col"]] = "."
@@ -124,7 +128,7 @@ def action(board):
                     player["equipped"] = "empty"
 
     elif player["look"] == "down" and player["row"] != 9:
-        if player["equipped"] == "axe" and board[player["row"] + 1][player["col"]] in [
+        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"] + 1][player["col"]] in [
             "T",
             "=",
         ]:
@@ -133,7 +137,7 @@ def action(board):
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer"
+            player["equipped"] == "hammer" and player['hammer'] >= 1
             and board[player["row"] + 1][player["col"]] == "*"
         ):
             board[player["row"] + 1][player["col"]] = "."
@@ -156,7 +160,7 @@ def action(board):
                     player["equipped"] = "empty"
 
     elif player["look"] == "right" and player["col"] != 19:
-        if player["equipped"] == "axe" and board[player["row"]][player["col"] + 1] in [
+        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"]][player["col"] + 1] in [
             "T",
             "=",
         ]:
@@ -165,7 +169,7 @@ def action(board):
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer"
+            player["equipped"] == "hammer" and player['hammer'] >= 1
             and board[player["row"]][player["col"] + 1] == "*"
         ):
             board[player["row"]][player["col"] + 1] = "."
@@ -188,7 +192,7 @@ def action(board):
                     player["equipped"] = "empty"
 
     elif player["look"] == "left" and player["col"] != 0:
-        if player["equipped"] == "axe" and board[player["row"]][player["col"] - 1] in [
+        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"]][player["col"] - 1] in [
             "T",
             "=",
         ]:
@@ -197,7 +201,7 @@ def action(board):
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer"
+            player["equipped"] == "hammer" and player['hammer'] >= 1
             and board[player["row"]][player["col"] - 1] == "*"
         ):
             board[player["row"]][player["col"] - 1] = "."
