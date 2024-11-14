@@ -11,6 +11,15 @@ sys.stdout.flush()
 
 resources = ["stone", "wood", "steel", "iron", "diamond", "gold"]
 
+resource_icon = {
+    "wood": "=",
+    "stone": "*",
+    "steel": "|",
+    "iron": "+",
+    "diamond": "^",
+    "gold": "@",
+}
+
 player = {
     "row": 0,
     "col": 0,
@@ -98,26 +107,22 @@ def action(board):
             player["stone"] += 1
             if "stone" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif (
-            player["equipped"] == "stone"
-            and board[player["row"] - 1][player["col"]] == "."
-            and player["stone"] > 0
-        ):
-            board[player["row"] - 1][player["col"]] = "*"
-            player["stone"] -= 1
-            if player["stone"] == 0:
-                player["inventory"][player["inventory"].index("stone")] = "empty"
-                player["equipped"] = "empty"
-        elif (
-            player["equipped"] == "wood"
-            and board[player["row"] - 1][player["col"]] == "."
-            and player["wood"] > 0
-        ):
-            board[player["row"] - 1][player["col"]] = "="
-            player["wood"] -= 1
-            if player["wood"] == 0:
-                player["inventory"][player["inventory"].index("wood")] = "empty"
-                player["equipped"] = "empty"
+
+        elif player["equipped"] in resources:
+            if (
+                board[player["row"] - 1][player["col"]] == "."
+                and player[player["equipped"]] > 0
+            ):
+                board[player["row"] - 1][player["col"]] = resource_icon[
+                    player["equipped"]
+                ]
+                player[player["equipped"]] -= 1
+                if player[player["equipped"]] == 0:
+                    player["inventory"][
+                        player["inventory"].index(player["equipped"])
+                    ] = "empty"
+                    player["equipped"] = "empty"
+
     elif player["look"] == "down" and player["row"] != 9:
         if player["equipped"] == "axe" and board[player["row"] + 1][player["col"]] in [
             "T",
@@ -135,26 +140,21 @@ def action(board):
             player["stone"] += 1
             if "stone" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif (
-            player["equipped"] == "stone"
-            and board[player["row"] + 1][player["col"]] == "."
-            and player["stone"] > 0
-        ):
-            board[player["row"] + 1][player["col"]] = "*"
-            player["stone"] -= 1
-            if player["stone"] == 0:
-                player["inventory"][player["inventory"].index("stone")] = "empty"
-                player["equipped"] = "empty"
-        elif (
-            player["equipped"] == "wood"
-            and board[player["row"] + 1][player["col"]] == "."
-            and player["wood"] > 0
-        ):
-            board[player["row"] + 1][player["col"]] = "="
-            player["wood"] -= 1
-            if player["wood"] == 0:
-                player["inventory"][player["inventory"].index("wood")] = "empty"
-                player["equipped"] = "empty"
+        elif player["equipped"] in resources:
+            if (
+                board[player["row"] + 1][player["col"]] == "."
+                and player[player["equipped"]] > 0
+            ):
+                board[player["row"] + 1][player["col"]] = resource_icon[
+                    player["equipped"]
+                ]
+                player[player["equipped"]] -= 1
+                if player[player["equipped"]] == 0:
+                    player["inventory"][
+                        player["inventory"].index(player["equipped"])
+                    ] = "empty"
+                    player["equipped"] = "empty"
+
     elif player["look"] == "right" and player["col"] != 19:
         if player["equipped"] == "axe" and board[player["row"]][player["col"] + 1] in [
             "T",
@@ -172,26 +172,21 @@ def action(board):
             player["stone"] += 1
             if "stone" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif (
-            player["equipped"] == "stone"
-            and board[player["row"]][player["col"] + 1] == "."
-            and player["stone"] > 0
-        ):
-            board[player["row"]][player["col"] + 1] = "*"
-            player["stone"] -= 1
-            if player["stone"] == 0:
-                player["inventory"][player["inventory"].index("stone")] = "empty"
-                player["equipped"] = "empty"
-        elif (
-            player["equipped"] == "wood"
-            and board[player["row"]][player["col"] + 1] == "."
-            and player["wood"] > 0
-        ):
-            board[player["row"]][player["col"] + 1] = "="
-            player["wood"] -= 1
-            if player["wood"] == 0:
-                player["inventory"][player["inventory"].index("wood")] = "empty"
-                player["equipped"] = "empty"
+        elif player["equipped"] in resources:
+            if (
+                board[player["row"]][player["col"] + 1] == "."
+                and player[player["equipped"]] > 0
+            ):
+                board[player["row"]][player["col"] + 1] = resource_icon[
+                    player["equipped"]
+                ]
+                player[player["equipped"]] -= 1
+                if player[player["equipped"]] == 0:
+                    player["inventory"][
+                        player["inventory"].index(player["equipped"])
+                    ] = "empty"
+                    player["equipped"] = "empty"
+
     elif player["look"] == "left" and player["col"] != 0:
         if player["equipped"] == "axe" and board[player["row"]][player["col"] - 1] in [
             "T",
@@ -209,26 +204,20 @@ def action(board):
             player["stone"] += 1
             if "stone" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif (
-            player["equipped"] == "stone"
-            and board[player["row"]][player["col"] - 1] == "."
-            and player["stone"] > 0
-        ):
-            board[player["row"]][player["col"] - 1] = "*"
-            player["stone"] -= 1
-            if player["stone"] == 0:
-                player["inventory"][player["inventory"].index("stone")] = "empty"
-                player["equipped"] = "empty"
-        elif (
-            player["equipped"] == "wood"
-            and board[player["row"]][player["col"] - 1] == "."
-            and player["wood"] > 0
-        ):
-            board[player["row"]][player["col"] - 1] = "="
-            player["wood"] -= 1
-            if player["wood"] == 0:
-                player["inventory"][player["inventory"].index("wood")] = "empty"
-                player["equipped"] = "empty"
+        elif player["equipped"] in resources:
+            if (
+                board[player["row"]][player["col"] - 1] == "."
+                and player[player["equipped"]] > 0
+            ):
+                board[player["row"]][player["col"] - 1] = resource_icon[
+                    player["equipped"]
+                ]
+                player[player["equipped"]] -= 1
+                if player[player["equipped"]] == 0:
+                    player["inventory"][
+                        player["inventory"].index(player["equipped"])
+                    ] = "empty"
+                    player["equipped"] = "empty"
 
     return board
 
