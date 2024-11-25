@@ -11,6 +11,8 @@ sys.stdout.flush()
 
 resources = ["stone", "wood", "steel", "iron", "diamond", "gold"]
 
+boards = {}
+
 resource_icon = {
     "wood": "=",
     "stone": "*",
@@ -76,8 +78,8 @@ def init_board():
         ["."] * 20,
     ]
 
-    for b in board:
-        for i in range(1, len(b)):
+    for b in board[1:9]:
+        for i in range(1, len(b)-1):
             prob = random.random()
             if prob <= 0.05:
                 b[i] = "T"
@@ -225,18 +227,33 @@ def action(board):
 
     return board
 
+def generate_world(n):
+    grid_size = n*n
+    progress_milestone = grid_size//10
+    progress = "[" + " "*10 + "]"
+    print(f"Generating world ({n}x{n})... {progress}")
+    c = 0
+    for i in range(grid_size):
+        boards[i] = init_board()
+        if i%progress_milestone == 0:
+            c += 1
+            progress = "[" + "#"*c + " "*(10-c) + "]"
+            sys.stdout.write("\0338\033[0J")
+            sys.stdout.flush()
+            print(f"Generating world ({n}x{n})... {progress}")
 
 def start():
-    board = init_board()
+    sys.stdout.write("\0338\033[0J")
+    sys.stdout.flush()
+    board_n = 1
+    board = boards[board_n]
+    print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
     display(board)
 
     tiles = ["T", "*", "=", "@", "+", "^", "|"]
 
     while True:
         if msvcrt.kbhit():
-            sys.stdout.write("\0338\033[0J")
-            sys.stdout.flush()
-
             ch = msvcrt.getch()
             board[player["row"]][player["col"]] = "."
 
@@ -251,22 +268,55 @@ def start():
                 elif ch == b"M":
                     player["look"] = "right"
 
-            elif ch == b"w" and player["row"] - 1 >= 0:
+            elif ch == b"w":
                 player["look"] = "up"
-                if board[player["row"] - 1][player["col"]] not in tiles:
+                if player["row"] - 1 < 0:
+                    if board_n > 500:
+                        board_n -= 500
+                        board = boards[board_n]
+                        player["row"] = 9
+                    else:
+                        player["row"] = 0
+                elif board[player["row"] - 1][player["col"]] not in tiles:
                     player["row"] -= 1
-            elif ch == b"a" and player["col"] - 1 >= 0:
+                    
+            elif ch == b"a":
                 player["look"] = "left"
-                if board[player["row"]][player["col"] - 1] not in tiles:
+                if player["col"] - 1 < 0:
+                    if board_n%500 != 1:
+                        board_n -= 1
+                        board = boards[board_n]
+                        player["col"] = 19
+                    else:
+                        player["col"] = 0
+                elif board[player["row"]][player["col"] - 1] not in tiles:
                     player["col"] -= 1
-            elif ch == b"s" and player["row"] + 1 <= 9:
+                    
+            elif ch == b"s":
                 player["look"] = "down"
-                if board[player["row"] + 1][player["col"]] not in tiles:
+                if player["row"] + 1 > 9:
+                    if board_n < 249501:
+                        board_n += 500
+                        board = boards[board_n]
+                        player["row"] = 0
+                    else:
+                        player["row"] = 9
+                elif board[player["row"] + 1][player["col"]] not in tiles:
                     player["row"] += 1
-            elif ch == b"d" and player["col"] + 1 <= 19:
+                    
+            elif ch == b"d":
                 player["look"] = "right"
-                if board[player["row"]][player["col"] + 1] not in tiles:
+                if player["col"] + 1 > 19:
+                    if board_n%500 != 0:
+                        board_n += 1
+                        board = boards[board_n]
+                        player["col"] = 0
+                    else:
+                        player["col"] = 19
+                elif board[player["row"]][player["col"] + 1] not in tiles:
                     player["col"] += 1
+                    
+                            
             elif ch == b"\r":
                 board = action(board)
             elif ch == b"1":
@@ -287,8 +337,12 @@ def start():
                 player["equipped"] = player["inventory"][7]
             elif ch == b"9":
                 player["equipped"] = player["inventory"][8]
-
+            
+            sys.stdout.write("\0338\033[0J")
+            sys.stdout.flush()
+            print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
             display(board)
 
 
+generate_world(500)
 start()
