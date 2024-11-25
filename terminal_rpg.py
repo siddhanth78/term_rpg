@@ -54,8 +54,7 @@ def display(board):
     for b in board:
         print("".join(b))
     current_resources = [
-        f"{item}: {player[item]}"
-        for item in player["inventory"] if item != "empty"
+        f"{item}: {player[item]}" for item in player["inventory"] if item != "empty"
     ]
     print("\n" + player["look"])
     print("Max inventory slots: 9")
@@ -79,7 +78,7 @@ def init_board():
     ]
 
     for b in board[1:9]:
-        for i in range(1, len(b)-1):
+        for i in range(1, len(b) - 1):
             prob = random.random()
             if prob <= 0.05:
                 b[i] = "T"
@@ -97,16 +96,22 @@ def init_board():
 
 def action(board):
     if player["look"] == "up" and player["row"] != 0:
-        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"] - 1][player["col"]] in [
-            "T",
-            "=",
-        ]:
+        if (
+            player["equipped"] == "axe"
+            and player["axe"] >= 1
+            and board[player["row"] - 1][player["col"]]
+            in [
+                "T",
+                "=",
+            ]
+        ):
             board[player["row"] - 1][player["col"]] = "."
             player["wood"] += 1
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer" and player['hammer'] >= 1
+            player["equipped"] == "hammer"
+            and player["hammer"] >= 1
             and board[player["row"] - 1][player["col"]] == "*"
         ):
             board[player["row"] - 1][player["col"]] = "."
@@ -130,16 +135,22 @@ def action(board):
                     player["equipped"] = "empty"
 
     elif player["look"] == "down" and player["row"] != 9:
-        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"] + 1][player["col"]] in [
-            "T",
-            "=",
-        ]:
+        if (
+            player["equipped"] == "axe"
+            and player["axe"] >= 1
+            and board[player["row"] + 1][player["col"]]
+            in [
+                "T",
+                "=",
+            ]
+        ):
             board[player["row"] + 1][player["col"]] = "."
             player["wood"] += 1
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer" and player['hammer'] >= 1
+            player["equipped"] == "hammer"
+            and player["hammer"] >= 1
             and board[player["row"] + 1][player["col"]] == "*"
         ):
             board[player["row"] + 1][player["col"]] = "."
@@ -162,16 +173,22 @@ def action(board):
                     player["equipped"] = "empty"
 
     elif player["look"] == "right" and player["col"] != 19:
-        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"]][player["col"] + 1] in [
-            "T",
-            "=",
-        ]:
+        if (
+            player["equipped"] == "axe"
+            and player["axe"] >= 1
+            and board[player["row"]][player["col"] + 1]
+            in [
+                "T",
+                "=",
+            ]
+        ):
             board[player["row"]][player["col"] + 1] = "."
             player["wood"] += 1
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer" and player['hammer'] >= 1
+            player["equipped"] == "hammer"
+            and player["hammer"] >= 1
             and board[player["row"]][player["col"] + 1] == "*"
         ):
             board[player["row"]][player["col"] + 1] = "."
@@ -194,16 +211,22 @@ def action(board):
                     player["equipped"] = "empty"
 
     elif player["look"] == "left" and player["col"] != 0:
-        if player["equipped"] == "axe" and player['axe'] >= 1 and board[player["row"]][player["col"] - 1] in [
-            "T",
-            "=",
-        ]:
+        if (
+            player["equipped"] == "axe"
+            and player["axe"] >= 1
+            and board[player["row"]][player["col"] - 1]
+            in [
+                "T",
+                "=",
+            ]
+        ):
             board[player["row"]][player["col"] - 1] = "."
             player["wood"] += 1
             if "wood" not in player["inventory"]:
                 player["inventory"][player["inventory"].index("empty")] = "wood"
         elif (
-            player["equipped"] == "hammer" and player['hammer'] >= 1
+            player["equipped"] == "hammer"
+            and player["hammer"] >= 1
             and board[player["row"]][player["col"] - 1] == "*"
         ):
             board[player["row"]][player["col"] - 1] = "."
@@ -227,20 +250,22 @@ def action(board):
 
     return board
 
+
 def generate_world(n):
-    grid_size = n*n
-    progress_milestone = grid_size//10
-    progress = "[" + " "*10 + "]"
+    grid_size = n * n
+    progress_milestone = grid_size // 10
+    progress = "[" + " " * 10 + "]"
     print(f"Generating world ({n}x{n})... {progress}")
     c = 0
     for i in range(grid_size):
         boards[i] = init_board()
-        if i%progress_milestone == 0:
+        if i % progress_milestone == 0:
             c += 1
-            progress = "[" + "#"*c + " "*(10-c) + "]"
+            progress = "[" + "#" * c + " " * (10 - c) + "]"
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Generating world ({n}x{n})... {progress}")
+
 
 def start():
     sys.stdout.write("\0338\033[0J")
@@ -279,11 +304,11 @@ def start():
                         player["row"] = 0
                 elif board[player["row"] - 1][player["col"]] not in tiles:
                     player["row"] -= 1
-                    
+
             elif ch == b"a":
                 player["look"] = "left"
                 if player["col"] - 1 < 0:
-                    if board_n%500 != 1:
+                    if board_n % 500 != 1:
                         board_n -= 1
                         board = boards[board_n]
                         player["col"] = 19
@@ -291,7 +316,7 @@ def start():
                         player["col"] = 0
                 elif board[player["row"]][player["col"] - 1] not in tiles:
                     player["col"] -= 1
-                    
+
             elif ch == b"s":
                 player["look"] = "down"
                 if player["row"] + 1 > 9:
@@ -303,11 +328,11 @@ def start():
                         player["row"] = 9
                 elif board[player["row"] + 1][player["col"]] not in tiles:
                     player["row"] += 1
-                    
+
             elif ch == b"d":
                 player["look"] = "right"
                 if player["col"] + 1 > 19:
-                    if board_n%500 != 0:
+                    if board_n % 500 != 0:
                         board_n += 1
                         board = boards[board_n]
                         player["col"] = 0
@@ -315,8 +340,7 @@ def start():
                         player["col"] = 19
                 elif board[player["row"]][player["col"] + 1] not in tiles:
                     player["col"] += 1
-                    
-                            
+
             elif ch == b"\r":
                 board = action(board)
             elif ch == b"1":
@@ -337,7 +361,7 @@ def start():
                 player["equipped"] = player["inventory"][7]
             elif ch == b"9":
                 player["equipped"] = player["inventory"][8]
-            
+
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
