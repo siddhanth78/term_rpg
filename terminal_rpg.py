@@ -13,6 +13,8 @@ resources = ["stone", "wood", "steel", "iron", "diamond", "gold"]
 
 boards = {}
 
+mine = {}
+
 resource_icon = {
     "wood": "=",
     "stone": "*",
@@ -61,7 +63,34 @@ def display(board):
     print("Inventory")
     print(" | ".join(current_resources))
     print("Equipped: " + player["equipped"])
-
+    
+def init_mine(n):
+    board = [
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+        ["."] * 20,
+    ]
+    
+    for b in board[1:9]:
+        for i in range(1, len(b) - 1):
+            prob = random.random()
+            if 0.05 < prob <= (0.07 - n*0.001):
+                b[i] = "*"
+            elif 0.07 < prob <= (0.08 - n*0.001):
+                b[i] = "+"
+            elif 0.08 < prob <= (0.085 + n*0.001):
+                b[i] = "@"
+            elif 0.09 < prob <= (0.091 + n*0.001):
+                b[i] = "^"
+                
+    return board
 
 def init_board():
     board = [
@@ -90,6 +119,19 @@ def init_board():
                 b[i] = "@"
             elif 0.0675 < prob <= 0.06775:
                 b[i] = "^"
+                
+    prob_mine = random.random()
+    
+    if prob_mine <= 0.03:
+        board[-2][-2] = "]"
+        board[-2][-3] = "_"
+        board[-2][-4] = "["
+        
+        board[-3][-2] = "\\"
+        board[-3][-3] = " "
+        board[-3][-4] = "/"
+        
+        board[-4][-3] = "_"
 
     return board
 
@@ -265,6 +307,22 @@ def generate_world(n):
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Generating world ({n}x{n})... {progress}")
+            
+            
+def generate_mine():
+    grid_size = random.randint(10, 31)
+    progress_milestone = grid_size // 10
+    progress = "[" + " " * 10 + "]"
+    print(f"Generating mine ({grid_size} levels)... {progress}")
+    c = 0
+    for i in range(grid_size):
+        mine[i] = init_mine(i)
+        if i % progress_milestone == 0:
+            c += 1
+            progress = "[" + "#" * c + " " * (10 - c) + "]"
+            sys.stdout.write("\0338\033[0J")
+            sys.stdout.flush()
+            print(f"Generating mine ({grid_size} levels)... {progress}")
 
 
 def start():
@@ -275,7 +333,7 @@ def start():
     print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
     display(board)
 
-    tiles = ["T", "*", "=", "@", "+", "^", "|"]
+    tiles = ["T", "*", "=", "@", "+", "^", "|", "/", "\\", "_", "[", "]", "-"]
 
     while True:
         if msvcrt.kbhit():
