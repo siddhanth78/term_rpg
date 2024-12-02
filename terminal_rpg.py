@@ -204,7 +204,7 @@ def generate_world(n):
     progress = "[" + " " * 10 + "]"
     print(f"Generating world ({n}x{n})... {progress}")
     c = 0
-    for i in range(1, grid_size+1):
+    for i in range(1, grid_size + 1):
         boards[i] = init_board()
         if i % progress_milestone == 0:
             c += 1
@@ -222,7 +222,7 @@ def generate_mine():
     progress = "[" + " " * 10 + "]"
     print(f"Generating mine ({grid_size} levels)... {progress}")
     c = 0
-    for i in range(1, grid_size+1):
+    for i in range(1, grid_size + 1):
         mine[i] = init_mine(i)
         if i % progress_milestone == 0:
             c += 1
@@ -280,7 +280,7 @@ def start():
                     player["look"] = "left"
                 elif ch == b"M":
                     player["look"] = "right"
-                    
+
             elif ch == b"\x1b":
                 sys.stdout.write("\0338\033[0J")
                 sys.stdout.flush()
