@@ -3,12 +3,10 @@ import sys
 import os
 import random
 import time
+import string
+import json
 
 os.system("cls")
-
-sys.stdout.write("\0337")
-sys.stdout.write("\033[?25l")
-sys.stdout.flush()
 
 resources = ["stone", "wood", "steel", "iron", "diamond", "gold"]
 
@@ -30,6 +28,8 @@ resource_icon = {
 player = {
     "row": 0,
     "col": 0,
+    "board_n": 1,
+    "mine_board_n": 1,
     "look": "right",
     "inventory": [
         "axe",
@@ -124,15 +124,15 @@ def init_board():
     for b in board[1:9]:
         for i in range(1, len(b) - 1):
             prob = random.random()
-            if prob <= 0.05:
+            if prob <= 0.08:
                 b[i] = "T"
-            elif 0.05 < prob <= 0.06:
+            elif 0.08 < prob <= 0.09:
                 b[i] = "*"
-            elif 0.06 < prob <= 0.065:
+            elif 0.09 < prob <= 0.095:
                 b[i] = "+"
-            elif 0.065 < prob <= 0.0665:
+            elif 0.095 < prob <= 0.0965:
                 b[i] = "@"
-            elif 0.0675 < prob <= 0.06775:
+            elif 0.0975 < prob <= 0.09775:
                 b[i] = "^"
 
     prob_mine = random.random()
@@ -233,35 +233,52 @@ def generate_mine():
     time.sleep(1)
 
 
-def enter_mine(curr_area, board, board_n, curr_board_n):
-    if curr_board_n != board_n:
+def enter_mine(curr_area, board, temp_bn):
+    if temp_bn != player["board_n"]:
         generate_mine()
-    curr_board_n = board_n
-    board_n = 1
+    player["mine_board_n"] = 1
     curr_area = mine
-    board = curr_area[board_n]
+    board = curr_area[player["mine_board_n"]]
     in_mine = True
-    return in_mine, curr_area, board, board_n, curr_board_n
+    return in_mine, curr_area, board
 
 
-def exit_mine(curr_area, board, board_n, curr_board_n):
-    board_n = curr_board_n
+def exit_mine(curr_area, board, temp_bn):
+    player["board_n"] = temp_bn
     curr_area = boards
-    board = curr_area[board_n]
+    board = curr_area[player["board_n"]]
     in_mine = False
-    return in_mine, curr_area, board, board_n
+    return in_mine, curr_area, board
 
+def jsonKeys2int(x):
+    return {int(k):v for k,v in x.items()}
+    
+def load(w_id):
+    with open(f"worlds/{w_id}.world", "r") as f:
+        json_boards = json.loads(f.read())
+    boards = jsonKeys2int(json_boards)
+    with open(f"players/{w_id}.player", "r") as fp:
+        player = json.loads(fp.read())
+    return boards, player
+            
+def save(w_id):
+    with open(f"worlds/{w_id}.world", "w") as f:
+        f.write(json.dumps(boards))
+    with open(f"players/{w_id}.player", "w") as fp:
+        fp.write(json.dumps(player))
 
-def start():
+def start(w_id, boards, player):
     sys.stdout.write("\0338\033[0J")
     sys.stdout.flush()
-    board_n = 1
     curr_area = boards
-    board = curr_area[board_n]
-    print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
+    player["row"] = 0
+    player["col"] = 0
+    print(f'Tile: {(player["board_n"]%500)-1}, {player["board_n"]//500}\n')
+    board = curr_area[player["board_n"]]
     display(board)
-    curr_board_n = board_n
+    player["mine_board_n"] = 1
     in_mine = False
+    w_id = w_id
 
     tiles = ["T", "*", "=", "@", "+", "^", "|", "/", "\\", "_", "[", "]", "-"]
 
@@ -285,22 +302,28 @@ def start():
                 sys.stdout.write("\0338\033[0J")
                 sys.stdout.flush()
                 print("Quitting...")
+                print("Saving...")
+                save(w_id)
+                os.system("cls")
+                sys.stdout.write("\0337")
+                sys.stdout.write("\033[?25l")
+                sys.stdout.flush()
                 break
 
             elif ch == b"w":
                 player["look"] = "up"
                 if player["row"] - 1 < 0:
                     if in_mine == False:
-                        if board_n > 500:
-                            board_n -= 500
-                            board = curr_area[board_n]
+                        if player["board_n"] > 500:
+                            player["board_n"] -= 500
+                            board = curr_area[player["board_n"]]
                             player["row"] = 9
                         else:
                             player["row"] = 0
                     else:
-                        if board_n > 1:
-                            board_n -= 1
-                            board = curr_area[board_n]
+                        if player["mine_board_n"] > 1:
+                            player["mine_board_n"] -= 1
+                            board = curr_area[player["mine_board_n"]]
                             player["row"] = 9
                         else:
                             player["row"] = 0
@@ -312,9 +335,9 @@ def start():
                 player["look"] = "left"
                 if player["col"] - 1 < 0:
                     if in_mine == False:
-                        if board_n % 500 != 1:
-                            board_n -= 1
-                            board = curr_area[board_n]
+                        if player["board_n"] % 500 != 1:
+                            player["board_n"] -= 1
+                            board = curr_area[player["board_n"]]
                             player["col"] = 19
                         else:
                             player["col"] = 0
@@ -328,16 +351,16 @@ def start():
                 player["look"] = "down"
                 if player["row"] + 1 > 9:
                     if in_mine == False:
-                        if board_n < 249501:
-                            board_n += 500
-                            board = curr_area[board_n]
+                        if player["board_n"] < 249501:
+                            player["board_n"] += 500
+                            board = curr_area[player["board_n"]]
                             player["row"] = 0
                         else:
                             player["row"] = 9
                     else:
-                        if board_n < len(mine):
-                            board_n += 1
-                            board = curr_area[board_n]
+                        if player["mine_board_n"] < len(mine):
+                            player["mine_board_n"] += 1
+                            board = curr_area[player["mine_board_n"]]
                             player["row"] = 0
                         else:
                             player["row"] = 9
@@ -349,9 +372,9 @@ def start():
                 player["look"] = "right"
                 if player["col"] + 1 > 19:
                     if in_mine == False:
-                        if board_n % 500 != 0:
-                            board_n += 1
-                            board = curr_area[board_n]
+                        if player["board_n"] % 500 != 0:
+                            player["board_n"] += 1
+                            board = curr_area[player["board_n"]]
                             player["col"] = 0
                         else:
                             player["col"] = 19
@@ -381,12 +404,12 @@ def start():
                     )
                 ):
                     if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
-                            curr_area, board, board_n, curr_board_n
+                        in_mine, curr_area, board = enter_mine(
+                            curr_area, board
                         )
                     elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(
-                            curr_area, board, board_n, curr_board_n
+                        in_mine, curr_area, board = exit_mine(
+                            curr_area, board
                         )
                 else:
                     board = action(board)
@@ -411,9 +434,93 @@ def start():
 
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
-            print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
+            print(f'Tile: {(player["board_n"]%500)-1}, {player["board_n"]//500}\n')
             display(board)
 
-
-generate_world(500)
-start()
+if __name__ == "__main__":
+    with open(".settings", "r") as f:
+        settings = json.loads(f.read())
+    while True:
+        print(f'Max world slots: {settings["max_slots"]}')
+        print("1. Load world")
+        print("2. New world")
+        print("3. Delete world")
+        print("4. Show worlds")
+        print("5. Set max world slots (Warning: each world takes up about 55 MB)")
+        print("6. Exit")
+        try:
+            choice = int(input("Enter option: "))
+        except:
+            print("Invalid\n")
+            continue
+        else:
+            print()
+            if choice == 1:
+                if settings["worlds_available"] == 0:
+                    print("No worlds available to load\n")
+                    continue
+                w_id = input("Enter world ID: ")
+                if os.path.exists(f"worlds/{w_id}.world"):
+                    os.system("cls")
+                    sys.stdout.write("\0337")
+                    sys.stdout.write("\033[?25l")
+                    sys.stdout.flush()
+                    print(f"Loading world...")
+                    boards, player = load(w_id)
+                    with open(".settings", "w") as f:
+                        f.write(json.dumps(settings))
+                    start(w_id, boards, player)
+                else:
+                    print("World doesn't exist\n")
+            elif choice == 2:
+                if settings["worlds_available"] + 1 > settings["max_slots"]:
+                    print("Max world slots exceeded\n")
+                else:
+                    os.system("cls")
+                    sys.stdout.write("\0337")
+                    sys.stdout.write("\033[?25l")
+                    sys.stdout.flush()
+                    sys.stdout.write("\0338\033[0J")
+                    sys.stdout.flush()
+                    generate_world(500)
+                    w_id = '-'.join([''.join(random.choices(string.ascii_uppercase + string.digits, k=4)), ''.join(random.choices(string.ascii_uppercase + string.digits, k=4)),
+                                    ''.join(random.choices(string.ascii_uppercase + string.digits, k=4)), ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))])
+                    print(f"World ID: {w_id}")
+                    settings["worlds_available"] += 1
+                    print("Saving...")
+                    save(w_id)
+                    settings["all_worlds"].append(w_id)
+                    with open(".settings", "w") as f:
+                        f.write(json.dumps(settings))
+                    start(w_id, boards, player)
+            elif choice == 3:
+                if settings["worlds_available"] == 0:
+                    print("No worlds available to delete\n")
+                    continue
+                w_id = input("Enter world ID: ")
+                if os.path.exists(f"worlds/{w_id}.world"):
+                    os.remove(f"worlds/{w_id}.world")
+                    os.remove(f"players/{w_id}.player")
+                    settings["worlds_available"] -= 1
+                    settings["all_worlds"].remove(w_id)
+                    print("World deleted\n")
+                else:
+                    print("World doesn't exist\n")
+            elif choice == 4:
+                print("World IDs:\n")
+                for aw in settings["all_worlds"]:
+                    print(aw)
+                print()
+            elif choice == 5:
+                try:
+                    settings["max_slots"] = int(input("Enter new max: "))
+                except:
+                    print("Invalid\n")
+                else:
+                    print(f'New max world slots: {settings["max_slots"]}\n')
+            elif choice == 6:
+                with open(".settings", "w") as f:
+                    f.write(json.dumps(settings))
+                quit()
+            else:
+                print("Invalid\n")
