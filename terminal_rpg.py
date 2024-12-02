@@ -65,7 +65,8 @@ def display(board):
     print("Inventory")
     print(" | ".join(current_resources))
     print("Equipped: " + player["equipped"])
-    
+
+
 def init_mine(n):
     board = [
         ["."] * 20,
@@ -79,30 +80,31 @@ def init_mine(n):
         ["."] * 20,
         ["."] * 20,
     ]
-    
+
     for b in board[1:9]:
         for i in range(1, len(b) - 1):
             prob = random.random()
-            if 0.05 < prob <= (0.07 - n*0.001):
+            if 0.05 < prob <= (0.07 - n * 0.001):
                 b[i] = "*"
-            elif 0.07 < prob <= (0.08 - n*0.001):
+            elif 0.07 < prob <= (0.08 - n * 0.001):
                 b[i] = "+"
-            elif 0.08 < prob <= (0.085 + n*0.001):
+            elif 0.08 < prob <= (0.085 + n * 0.001):
                 b[i] = "@"
-            elif 0.09 < prob <= (0.091 + n*0.001):
+            elif 0.09 < prob <= (0.091 + n * 0.001):
                 b[i] = "^"
-                
+
     board[-2][-2] = "]"
     board[-2][-3] = "_"
     board[-2][-4] = "["
-    
+
     board[-3][-2] = "\\"
     board[-3][-3] = " "
     board[-3][-4] = "/"
-    
+
     board[-4][-3] = "_"
-                
+
     return board
+
 
 def init_board():
     board = [
@@ -131,18 +133,18 @@ def init_board():
                 b[i] = "@"
             elif 0.0675 < prob <= 0.06775:
                 b[i] = "^"
-                
+
     prob_mine = random.random()
-    
+
     if prob_mine <= 0.03:
         board[-2][-2] = "]"
         board[-2][-3] = "_"
         board[-2][-4] = "["
-        
+
         board[-3][-2] = "\\"
         board[-3][-3] = " "
         board[-3][-4] = "/"
-        
+
         board[-4][-3] = "_"
 
     return board
@@ -150,157 +152,47 @@ def init_board():
 
 def action(board):
     if player["look"] == "up" and player["row"] != 0:
-        if (
-            player["equipped"] == "axe"
-            and player["axe"] >= 1
-            and board[player["row"] - 1][player["col"]]
-            in [
-                "T",
-                "=",
-            ]
-        ):
-            board[player["row"] - 1][player["col"]] = "."
-            player["wood"] += 1
-            if "wood" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "wood"
-        elif (
-            player["equipped"] == "hammer"
-            and player["hammer"] >= 1
-            and board[player["row"] - 1][player["col"]] == "*"
-        ):
-            board[player["row"] - 1][player["col"]] = "."
-            player["stone"] += 1
-            if "stone" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "stone"
-
-        elif player["equipped"] in resources:
-            if (
-                board[player["row"] - 1][player["col"]] == "."
-                and player[player["equipped"]] > 0
-            ):
-                board[player["row"] - 1][player["col"]] = resource_icon[
-                    player["equipped"]
-                ]
-                player[player["equipped"]] -= 1
-                if player[player["equipped"]] == 0:
-                    player["inventory"][
-                        player["inventory"].index(player["equipped"])
-                    ] = "empty"
-                    player["equipped"] = "empty"
-
+        return check_state(board, player["row"] - 1, player["col"])
     elif player["look"] == "down" and player["row"] != 9:
-        if (
-            player["equipped"] == "axe"
-            and player["axe"] >= 1
-            and board[player["row"] + 1][player["col"]]
-            in [
-                "T",
-                "=",
-            ]
-        ):
-            board[player["row"] + 1][player["col"]] = "."
-            player["wood"] += 1
-            if "wood" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "wood"
-        elif (
-            player["equipped"] == "hammer"
-            and player["hammer"] >= 1
-            and board[player["row"] + 1][player["col"]] == "*"
-        ):
-            board[player["row"] + 1][player["col"]] = "."
-            player["stone"] += 1
-            if "stone" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif player["equipped"] in resources:
-            if (
-                board[player["row"] + 1][player["col"]] == "."
-                and player[player["equipped"]] > 0
-            ):
-                board[player["row"] + 1][player["col"]] = resource_icon[
-                    player["equipped"]
-                ]
-                player[player["equipped"]] -= 1
-                if player[player["equipped"]] == 0:
-                    player["inventory"][
-                        player["inventory"].index(player["equipped"])
-                    ] = "empty"
-                    player["equipped"] = "empty"
-
+        return check_state(board, player["row"] + 1, player["col"])
     elif player["look"] == "right" and player["col"] != 19:
-        if (
-            player["equipped"] == "axe"
-            and player["axe"] >= 1
-            and board[player["row"]][player["col"] + 1]
-            in [
-                "T",
-                "=",
-            ]
-        ):
-            board[player["row"]][player["col"] + 1] = "."
-            player["wood"] += 1
-            if "wood" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "wood"
-        elif (
-            player["equipped"] == "hammer"
-            and player["hammer"] >= 1
-            and board[player["row"]][player["col"] + 1] == "*"
-        ):
-            board[player["row"]][player["col"] + 1] = "."
-            player["stone"] += 1
-            if "stone" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif player["equipped"] in resources:
-            if (
-                board[player["row"]][player["col"] + 1] == "."
-                and player[player["equipped"]] > 0
-            ):
-                board[player["row"]][player["col"] + 1] = resource_icon[
-                    player["equipped"]
-                ]
-                player[player["equipped"]] -= 1
-                if player[player["equipped"]] == 0:
-                    player["inventory"][
-                        player["inventory"].index(player["equipped"])
-                    ] = "empty"
-                    player["equipped"] = "empty"
-
+        return check_state(board, player["row"], player["col"] + 1)
     elif player["look"] == "left" and player["col"] != 0:
-        if (
-            player["equipped"] == "axe"
-            and player["axe"] >= 1
-            and board[player["row"]][player["col"] - 1]
-            in [
-                "T",
-                "=",
-            ]
-        ):
-            board[player["row"]][player["col"] - 1] = "."
-            player["wood"] += 1
-            if "wood" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "wood"
-        elif (
-            player["equipped"] == "hammer"
-            and player["hammer"] >= 1
-            and board[player["row"]][player["col"] - 1] == "*"
-        ):
-            board[player["row"]][player["col"] - 1] = "."
-            player["stone"] += 1
-            if "stone" not in player["inventory"]:
-                player["inventory"][player["inventory"].index("empty")] = "stone"
-        elif player["equipped"] in resources:
-            if (
-                board[player["row"]][player["col"] - 1] == "."
-                and player[player["equipped"]] > 0
-            ):
-                board[player["row"]][player["col"] - 1] = resource_icon[
-                    player["equipped"]
-                ]
-                player[player["equipped"]] -= 1
-                if player[player["equipped"]] == 0:
-                    player["inventory"][
-                        player["inventory"].index(player["equipped"])
-                    ] = "empty"
-                    player["equipped"] = "empty"
+        return check_state(board, player["row"], player["col"] - 1)
+
+
+def check_state(board, row, col):
+    if (
+        player["equipped"] == "axe"
+        and player["axe"] >= 1
+        and board[row][col]
+        in [
+            "T",
+            "=",
+        ]
+    ):
+        board[row][col] = "."
+        player["wood"] += 1
+        if "wood" not in player["inventory"]:
+            player["inventory"][player["inventory"].index("empty")] = "wood"
+    elif (
+        player["equipped"] == "hammer"
+        and player["hammer"] >= 1
+        and board[row][col] == "*"
+    ):
+        board[row][col] = "."
+        player["stone"] += 1
+        if "stone" not in player["inventory"]:
+            player["inventory"][player["inventory"].index("empty")] = "stone"
+    elif player["equipped"] in resources:
+        if board[row][col] == "." and player[player["equipped"]] > 0:
+            board[row][col] = resource_icon[player["equipped"]]
+            player[player["equipped"]] -= 1
+            if player[player["equipped"]] == 0:
+                player["inventory"][
+                    player["inventory"].index(player["equipped"])
+                ] = "empty"
+                player["equipped"] = "empty"
 
     return board
 
@@ -319,8 +211,8 @@ def generate_world(n):
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Generating world ({n}x{n})... {progress}")
-            
-            
+
+
 def generate_mine():
     sys.stdout.write("\0338\033[0J")
     sys.stdout.flush()
@@ -337,7 +229,8 @@ def generate_mine():
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Generating mine ({grid_size} levels)... {progress}")
-    
+
+
 def enter_mine(curr_area, board, board_n, curr_board_n):
     if curr_board_n != board_n:
         generate_mine()
@@ -348,12 +241,14 @@ def enter_mine(curr_area, board, board_n, curr_board_n):
     in_mine = True
     return in_mine, curr_area, board, board_n, curr_board_n
 
+
 def exit_mine(curr_area, board, board_n, curr_board_n):
     board_n = curr_board_n
     curr_area = boards
     board = curr_area[board_n]
     in_mine = False
     return in_mine, curr_area, board, board_n
+
 
 def start():
     sys.stdout.write("\0338\033[0J")
@@ -401,7 +296,7 @@ def start():
                             player["row"] = 9
                         else:
                             player["row"] = 0
-                            
+
                 elif board[player["row"] - 1][player["col"]] not in tiles:
                     player["row"] -= 1
 
@@ -417,7 +312,7 @@ def start():
                             player["col"] = 0
                     else:
                         player["col"] = 0
-                            
+
                 elif board[player["row"]][player["col"] - 1] not in tiles:
                     player["col"] -= 1
 
@@ -438,7 +333,7 @@ def start():
                             player["row"] = 0
                         else:
                             player["row"] = 9
-                            
+
                 elif board[player["row"] + 1][player["col"]] not in tiles:
                     player["row"] += 1
 
@@ -454,31 +349,55 @@ def start():
                             player["col"] = 19
                     else:
                         player["col"] = 19
-                            
+
                 elif board[player["row"]][player["col"] + 1] not in tiles:
                     player["col"] += 1
 
             elif ch == b"\r":
-                if player["look"] == "up" and (board[player["row"] - 1][player["col"]] in mine_tiles):
+                if player["look"] == "up" and (
+                    board[player["row"] - 1][player["col"]] in mine_tiles
+                ):
                     if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
                     elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
-                elif player["look"] == "down" and (board[player["row"] + 1][player["col"]] in mine_tiles):
+                        in_mine, curr_area, board, board_n = exit_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
+                elif player["look"] == "down" and (
+                    board[player["row"] + 1][player["col"]] in mine_tiles
+                ):
                     if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
                     elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
-                elif player["look"] == "left" and (board[player["row"]][player["col"] - 1] in mine_tiles):
+                        in_mine, curr_area, board, board_n = exit_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
+                elif player["look"] == "left" and (
+                    board[player["row"]][player["col"] - 1] in mine_tiles
+                ):
                     if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
                     elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
-                elif player["look"] == "right" and (board[player["row"]][player["col"] + 1] in mine_tiles):
+                        in_mine, curr_area, board, board_n = exit_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
+                elif player["look"] == "right" and (
+                    board[player["row"]][player["col"] + 1] in mine_tiles
+                ):
                     if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
                     elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
+                        in_mine, curr_area, board, board_n = exit_mine(
+                            curr_area, board, board_n, curr_board_n
+                        )
                 else:
                     board = action(board)
             elif ch == b"1":
