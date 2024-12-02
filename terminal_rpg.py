@@ -2,6 +2,7 @@ import msvcrt
 import sys
 import os
 import random
+import time
 
 os.system("cls")
 
@@ -84,13 +85,13 @@ def init_mine(n):
     for b in board[1:9]:
         for i in range(1, len(b) - 1):
             prob = random.random()
-            if 0.05 < prob <= (0.07 - n * 0.001):
+            if 0.05 < prob <= (0.08 - n * 0.001):
                 b[i] = "*"
-            elif 0.07 < prob <= (0.08 - n * 0.001):
+            elif 0.08 < prob <= (0.1 - n * 0.001):
                 b[i] = "+"
-            elif 0.08 < prob <= (0.085 + n * 0.001):
+            elif 0.1 < prob <= (0.101 + n * 0.001):
                 b[i] = "@"
-            elif 0.09 < prob <= (0.091 + n * 0.001):
+            elif 0.25 < prob <= (0.2515 + n * 0.0005):
                 b[i] = "^"
 
     board[-2][-2] = "]"
@@ -203,7 +204,7 @@ def generate_world(n):
     progress = "[" + " " * 10 + "]"
     print(f"Generating world ({n}x{n})... {progress}")
     c = 0
-    for i in range(grid_size):
+    for i in range(1, grid_size+1):
         boards[i] = init_board()
         if i % progress_milestone == 0:
             c += 1
@@ -221,7 +222,7 @@ def generate_mine():
     progress = "[" + " " * 10 + "]"
     print(f"Generating mine ({grid_size} levels)... {progress}")
     c = 0
-    for i in range(grid_size):
+    for i in range(1, grid_size+1):
         mine[i] = init_mine(i)
         if i % progress_milestone == 0:
             c += 1
@@ -229,13 +230,14 @@ def generate_mine():
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Generating mine ({grid_size} levels)... {progress}")
+    time.sleep(1)
 
 
 def enter_mine(curr_area, board, board_n, curr_board_n):
     if curr_board_n != board_n:
         generate_mine()
     curr_board_n = board_n
-    board_n = 0
+    board_n = 1
     curr_area = mine
     board = curr_area[board_n]
     in_mine = True
@@ -278,6 +280,12 @@ def start():
                     player["look"] = "left"
                 elif ch == b"M":
                     player["look"] = "right"
+                    
+            elif ch == b"\x1b":
+                sys.stdout.write("\0338\033[0J")
+                sys.stdout.flush()
+                print("Quitting...")
+                break
 
             elif ch == b"w":
                 player["look"] = "up"
@@ -290,7 +298,7 @@ def start():
                         else:
                             player["row"] = 0
                     else:
-                        if board_n > 0:
+                        if board_n > 1:
                             board_n -= 1
                             board = curr_area[board_n]
                             player["row"] = 9
@@ -354,41 +362,23 @@ def start():
                     player["col"] += 1
 
             elif ch == b"\r":
-                if player["look"] == "up" and (
-                    board[player["row"] - 1][player["col"]] in mine_tiles
-                ):
-                    if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
-                            curr_area, board, board_n, curr_board_n
-                        )
-                    elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(
-                            curr_area, board, board_n, curr_board_n
-                        )
-                elif player["look"] == "down" and (
-                    board[player["row"] + 1][player["col"]] in mine_tiles
-                ):
-                    if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
-                            curr_area, board, board_n, curr_board_n
-                        )
-                    elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(
-                            curr_area, board, board_n, curr_board_n
-                        )
-                elif player["look"] == "left" and (
-                    board[player["row"]][player["col"] - 1] in mine_tiles
-                ):
-                    if in_mine == False:
-                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
-                            curr_area, board, board_n, curr_board_n
-                        )
-                    elif in_mine == True:
-                        in_mine, curr_area, board, board_n = exit_mine(
-                            curr_area, board, board_n, curr_board_n
-                        )
-                elif player["look"] == "right" and (
-                    board[player["row"]][player["col"] + 1] in mine_tiles
+                if (
+                    (
+                        player["look"] == "up"
+                        and (board[player["row"] - 1][player["col"]] in mine_tiles)
+                    )
+                    or (
+                        player["look"] == "down"
+                        and (board[player["row"] + 1][player["col"]] in mine_tiles)
+                    )
+                    or (
+                        player["look"] == "left"
+                        and (board[player["row"]][player["col"] - 1] in mine_tiles)
+                    )
+                    or (
+                        player["look"] == "right"
+                        and (board[player["row"]][player["col"] + 1] in mine_tiles)
+                    )
                 ):
                     if in_mine == False:
                         in_mine, curr_area, board, board_n, curr_board_n = enter_mine(
