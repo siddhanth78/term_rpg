@@ -169,7 +169,7 @@ def check_state(board, row, col):
         and board[row][col]
         in [
             "T",
-            "=",
+            "=", 
         ]
     ):
         board[row][col] = "."
@@ -236,11 +236,12 @@ def generate_mine():
 def enter_mine(curr_area, board, temp_bn):
     if temp_bn != player["board_n"]:
         generate_mine()
+    temp_bn = player["board_n"]
     player["mine_board_n"] = 1
     curr_area = mine
     board = curr_area[player["mine_board_n"]]
     in_mine = True
-    return in_mine, curr_area, board
+    return in_mine, curr_area, board, temp_bn
 
 
 def exit_mine(curr_area, board, temp_bn):
@@ -249,21 +250,28 @@ def exit_mine(curr_area, board, temp_bn):
     board = curr_area[player["board_n"]]
     in_mine = False
     return in_mine, curr_area, board
-
-def jsonKeys2int(x):
-    return {int(k):v for k,v in x.items()}
     
 def load(w_id):
     with open(f"worlds/{w_id}.world", "r") as f:
-        json_boards = json.loads(f.read())
-    boards = jsonKeys2int(json_boards)
+        all_boards = f.read().split("\n%===%\n")
+        all_boards.remove("")
+        c = 1
+        for ab in all_boards:
+            rows = ab.split("\n")
+            boards[c] = [list(row) for row in rows]
+            c += 1
     with open(f"players/{w_id}.player", "r") as fp:
         player = json.loads(fp.read())
     return boards, player
             
 def save(w_id):
     with open(f"worlds/{w_id}.world", "w") as f:
-        f.write(json.dumps(boards))
+        for i in range(1, 250001):
+            for b in boards[i]:
+                row = ''.join(b)
+                row += "\n"
+                f.write(row)
+            f.write("%===%\n")
     with open(f"players/{w_id}.player", "w") as fp:
         fp.write(json.dumps(player))
 
@@ -279,6 +287,7 @@ def start(w_id, boards, player):
     player["mine_board_n"] = 1
     in_mine = False
     w_id = w_id
+    temp_bn = 0
 
     tiles = ["T", "*", "=", "@", "+", "^", "|", "/", "\\", "_", "[", "]", "-"]
 
@@ -404,12 +413,12 @@ def start(w_id, boards, player):
                     )
                 ):
                     if in_mine == False:
-                        in_mine, curr_area, board = enter_mine(
-                            curr_area, board
+                        in_mine, curr_area, board, temp_bn = enter_mine(
+                            curr_area, board, temp_bn
                         )
                     elif in_mine == True:
                         in_mine, curr_area, board = exit_mine(
-                            curr_area, board
+                            curr_area, board, temp_bn
                         )
                 else:
                     board = action(board)
