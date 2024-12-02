@@ -222,7 +222,7 @@ def generate_mine():
     progress = "[" + " " * 10 + "]"
     print(f"Generating mine ({grid_size} levels)... {progress}")
     c = 0
-    for i in range(1, grid_size + 1):
+    for i in range(1, grid_size + 1): 
         mine[i] = init_mine(i)
         if i % progress_milestone == 0:
             c += 1
