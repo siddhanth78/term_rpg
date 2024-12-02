@@ -15,6 +15,8 @@ boards = {}
 
 mine = {}
 
+mine_tiles = ["/", "-", "\\", "[", "]", "_"]
+
 resource_icon = {
     "wood": "=",
     "stone": "*",
@@ -89,6 +91,16 @@ def init_mine(n):
                 b[i] = "@"
             elif 0.09 < prob <= (0.091 + n*0.001):
                 b[i] = "^"
+                
+    board[-2][-2] = "]"
+    board[-2][-3] = "_"
+    board[-2][-4] = "["
+    
+    board[-3][-2] = "\\"
+    board[-3][-3] = " "
+    board[-3][-4] = "/"
+    
+    board[-4][-3] = "_"
                 
     return board
 
@@ -310,6 +322,8 @@ def generate_world(n):
             
             
 def generate_mine():
+    sys.stdout.write("\0338\033[0J")
+    sys.stdout.flush()
     grid_size = random.randint(10, 31)
     progress_milestone = grid_size // 10
     progress = "[" + " " * 10 + "]"
@@ -323,15 +337,34 @@ def generate_mine():
             sys.stdout.write("\0338\033[0J")
             sys.stdout.flush()
             print(f"Generating mine ({grid_size} levels)... {progress}")
+    
+def enter_mine(curr_area, board, board_n, curr_board_n):
+    if curr_board_n != board_n:
+        generate_mine()
+    curr_board_n = board_n
+    board_n = 0
+    curr_area = mine
+    board = curr_area[board_n]
+    in_mine = True
+    return in_mine, curr_area, board, board_n, curr_board_n
 
+def exit_mine(curr_area, board, board_n, curr_board_n):
+    board_n = curr_board_n
+    curr_area = boards
+    board = curr_area[board_n]
+    in_mine = False
+    return in_mine, curr_area, board, board_n
 
 def start():
     sys.stdout.write("\0338\033[0J")
     sys.stdout.flush()
     board_n = 1
-    board = boards[board_n]
+    curr_area = boards
+    board = curr_area[board_n]
     print(f"Tile: {(board_n%500)-1}, {board_n//500}\n")
     display(board)
+    curr_board_n = board_n
+    in_mine = False
 
     tiles = ["T", "*", "=", "@", "+", "^", "|", "/", "\\", "_", "[", "]", "-"]
 
@@ -354,53 +387,100 @@ def start():
             elif ch == b"w":
                 player["look"] = "up"
                 if player["row"] - 1 < 0:
-                    if board_n > 500:
-                        board_n -= 500
-                        board = boards[board_n]
-                        player["row"] = 9
+                    if in_mine == False:
+                        if board_n > 500:
+                            board_n -= 500
+                            board = curr_area[board_n]
+                            player["row"] = 9
+                        else:
+                            player["row"] = 0
                     else:
-                        player["row"] = 0
+                        if board_n > 0:
+                            board_n -= 1
+                            board = curr_area[board_n]
+                            player["row"] = 9
+                        else:
+                            player["row"] = 0
+                            
                 elif board[player["row"] - 1][player["col"]] not in tiles:
                     player["row"] -= 1
 
             elif ch == b"a":
                 player["look"] = "left"
                 if player["col"] - 1 < 0:
-                    if board_n % 500 != 1:
-                        board_n -= 1
-                        board = boards[board_n]
-                        player["col"] = 19
+                    if in_mine == False:
+                        if board_n % 500 != 1:
+                            board_n -= 1
+                            board = curr_area[board_n]
+                            player["col"] = 19
+                        else:
+                            player["col"] = 0
                     else:
                         player["col"] = 0
+                            
                 elif board[player["row"]][player["col"] - 1] not in tiles:
                     player["col"] -= 1
 
             elif ch == b"s":
                 player["look"] = "down"
                 if player["row"] + 1 > 9:
-                    if board_n < 249501:
-                        board_n += 500
-                        board = boards[board_n]
-                        player["row"] = 0
+                    if in_mine == False:
+                        if board_n < 249501:
+                            board_n += 500
+                            board = curr_area[board_n]
+                            player["row"] = 0
+                        else:
+                            player["row"] = 9
                     else:
-                        player["row"] = 9
+                        if board_n < len(mine):
+                            board_n += 1
+                            board = curr_area[board_n]
+                            player["row"] = 0
+                        else:
+                            player["row"] = 9
+                            
                 elif board[player["row"] + 1][player["col"]] not in tiles:
                     player["row"] += 1
 
             elif ch == b"d":
                 player["look"] = "right"
                 if player["col"] + 1 > 19:
-                    if board_n % 500 != 0:
-                        board_n += 1
-                        board = boards[board_n]
-                        player["col"] = 0
+                    if in_mine == False:
+                        if board_n % 500 != 0:
+                            board_n += 1
+                            board = curr_area[board_n]
+                            player["col"] = 0
+                        else:
+                            player["col"] = 19
                     else:
                         player["col"] = 19
+                            
                 elif board[player["row"]][player["col"] + 1] not in tiles:
                     player["col"] += 1
 
             elif ch == b"\r":
-                board = action(board)
+                if player["look"] == "up" and (board[player["row"] - 1][player["col"]] in mine_tiles):
+                    if in_mine == False:
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                    elif in_mine == True:
+                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
+                elif player["look"] == "down" and (board[player["row"] + 1][player["col"]] in mine_tiles):
+                    if in_mine == False:
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                    elif in_mine == True:
+                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
+                elif player["look"] == "left" and (board[player["row"]][player["col"] - 1] in mine_tiles):
+                    if in_mine == False:
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                    elif in_mine == True:
+                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
+                elif player["look"] == "right" and (board[player["row"]][player["col"] + 1] in mine_tiles):
+                    if in_mine == False:
+                        in_mine, curr_area, board, board_n, curr_board_n = enter_mine(curr_area, board, board_n, curr_board_n)
+                    elif in_mine == True:
+                        in_mine, curr_area, board, board_n = exit_mine(curr_area, board, board_n, curr_board_n)
+                else:
+                    board = action(board)
             elif ch == b"1":
                 player["equipped"] = player["inventory"][0]
             elif ch == b"2":
